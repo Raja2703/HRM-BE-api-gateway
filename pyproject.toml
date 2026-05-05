@@ -1,0 +1,23 @@
+[project]
+name = "api-gateway"
+version = "0.1.0"
+description = "Microservice: api-gateway"
+readme = "README.md"
+requires-python = "==3.12.11"
+dependencies = [
+    "fastapi>=0.135.1",
+    "pydantic[email]>=2.12.5",
+    "pydantic-settings>=2.13.1",
+    "httpx>=0.28.1",
+    "uvicorn>=0.41.0",
+    "sqlalchemy>=2.0.48",
+    "python-keycloak>=7.1.1",
+    "stripe>=14.4.1",
+    "tenacity>=9.1.4",
+    "slowapi>=0.1.9",
+    "asyncpg>=0.31.0"
+]
+
+[tool.hatch.build]
+skip = true
+
