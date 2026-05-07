@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import os
 import logging
-
+from fastapi.responses import JSONResponse
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,11 @@ SERVICES = {
     "/api/v1/cms": os.getenv("CMS_SERVICE_URL", "http://localhost:7080"),
     "/api/v1/candidates": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:7077"),
 }
+
+@app.get("/health")
+async def health_check():
+    return JSONResponse(status_code=200, content={"status": "ok", "service": "api_gateway-service"})
+
 
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
 async def gateway(request: Request, path: str):

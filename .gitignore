@@ -10,3 +10,4 @@ local.settings.json
 .vscode/
 .idea/
 
+uv.lock

@@ -15,7 +15,7 @@ COPY . .
 RUN uv sync --no-dev --no-cache
 
 # Move into service
-WORKDIR /workspace/api-gateway
+WORKDIR /workspace
 
 EXPOSE 8000
 
