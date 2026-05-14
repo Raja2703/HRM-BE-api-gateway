@@ -27,7 +27,7 @@ SERVICES = {
     "/api/v1/orchestrate": os.getenv("ORCHESTRATOR_SERVICE_URL", "http://localhost:8002"),
     "/api/v1/jobs": os.getenv("JOB_SERVICE_URL", "http://localhost:7078"),
     "/api/v1/cms": os.getenv("CMS_SERVICE_URL", "http://localhost:7080"),
-    "/api/v1/candidates": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:7077"),
+    "/api/v1/candidates": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:8003"),
 }
 
 @app.get("/health")
