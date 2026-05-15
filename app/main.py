@@ -54,6 +54,9 @@ async def gateway(request: Request, path: str):
     if "/api/v1/cms" in requested_path:
         # For CMS (Azure Function), strip /api/v1/cms and prepend /api
         target_path = requested_path.replace("/api/v1/cms", "/api", 1)
+    elif not requested_path.startswith("/api/v1/"):
+        # If the frontend stripped /api/v1, add it back for the microservice
+        target_path = f"/api/v1{requested_path}"
     else:
         # PASS THROUGH EXACTLY AS IS (Candidates, Orchestrator, etc.)
         target_path = requested_path
