@@ -36,8 +36,10 @@ async def health_check():
     return JSONResponse(status_code=200, content={"status": "ok", "service": "api_gateway-service"})
 
 
+from fastapi import BackgroundTasks
+
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
-async def gateway(request: Request, path: str):
+async def gateway(request: Request, path: str, background_tasks: BackgroundTasks):
     requested_path = f"/{path}"
     target_service_url = None
     
@@ -85,7 +87,10 @@ async def gateway(request: Request, path: str):
                 headers=headers,
                 content=body,
             )
-            
+        except httpx.RequestError as e:
+            logger.error(f"Error communicating with {target_url}: {e}")
+            raise HTTPException(status_code=502, detail=f"Bad Gateway: Unable to reach upstream service.")
+        else:
             # Exclude response headers that should not be forwarded
             resp_headers = dict(response.headers)
             resp_headers.pop("content-encoding", None)
@@ -93,18 +98,15 @@ async def gateway(request: Request, path: str):
 
             # --- AUDIT LOGGING ---
             from app.audit import publish_audit_event
-            import asyncio
-            asyncio.create_task(publish_audit_event(request, body, response.status_code))
+            background_tasks.add_task(publish_audit_event, request, body, response.status_code)
             # ---------------------
 
             return Response(
                 content=response.content,
                 status_code=response.status_code,
-                headers=resp_headers
+                headers=resp_headers,
+                background=background_tasks
             )
-        except httpx.RequestError as e:
-            logger.error(f"Error communicating with {target_url}: {e}")
-            raise HTTPException(status_code=502, detail=f"Bad Gateway: Unable to reach upstream service.")
 
 if __name__ == "__main__":
     import uvicorn
