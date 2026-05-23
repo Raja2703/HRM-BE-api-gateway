@@ -28,6 +28,7 @@ SERVICES = {
     "/api/v1/jobs": os.getenv("JOB_SERVICE_URL", "http://localhost:7078"),
     "/api/v1/cms": os.getenv("CMS_SERVICE_URL", "http://localhost:7080"),
     "/api/v1/candidates": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:8003"),
+    "/api/v1/audit": os.getenv("AUDIT_SERVICE_URL", "http://localhost:8004"),
 }
 
 @app.get("/health")
@@ -89,6 +90,12 @@ async def gateway(request: Request, path: str):
             resp_headers = dict(response.headers)
             resp_headers.pop("content-encoding", None)
             resp_headers.pop("content-length", None)
+
+            # --- AUDIT LOGGING ---
+            from app.audit import publish_audit_event
+            import asyncio
+            asyncio.create_task(publish_audit_event(request, body, response.status_code))
+            # ---------------------
 
             return Response(
                 content=response.content,
