@@ -21,10 +21,13 @@ SERVICES = {
     "/api/v1/auth": os.getenv("AUTH_SERVICE_URL", "http://localhost:7071"),
     "/api/v1/billing": os.getenv("BILLING_SERVICE_URL", "http://localhost:7072"),
     "/api/v1/tenants": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
+    "/api/v1/approvals": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
     "/api/v1/employees": os.getenv("EMPLOYEE_SERVICE_URL", "http://localhost:7074"),
     "/api/v1/superadmin": os.getenv("SUPERADMIN_SERVICE_URL", "http://localhost:7075"),
     "/api/v1/notifications": os.getenv("NOTIFICATION_SERVICE_URL", "http://localhost:7076"),
     "/api/v1/orchestrate": os.getenv("ORCHESTRATOR_SERVICE_URL", "http://localhost:8002"),
+    "/internal/api/v1/internal/orchestrator": os.getenv("ORCHESTRATOR_SERVICE_URL", "http://localhost:8002"),
+    "/pipelines/api/v1/orchestrator": os.getenv("ORCHESTRATOR_SERVICE_URL", "http://localhost:8002"),
     "/api/v1/jobs": os.getenv("JOB_SERVICE_URL", "http://localhost:7078"),
     "/api/v1/cms": os.getenv("CMS_SERVICE_URL", "http://localhost:7080"),
     "/api/v1/candidates": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:8003"),
@@ -57,6 +60,9 @@ async def gateway(request: Request, path: str, background_tasks: BackgroundTasks
     if "/api/v1/cms" in requested_path:
         # For CMS (Azure Function), strip /api/v1/cms and prepend /api
         target_path = requested_path.replace("/api/v1/cms", "/api", 1)
+    elif requested_path.startswith("/internal/") or requested_path.startswith("/pipelines/"):
+        # Pass through internal or pipelines paths without prepending /api/v1
+        target_path = requested_path
     elif not requested_path.startswith("/api/v1/"):
         # If the frontend stripped /api/v1, add it back for the microservice
         target_path = f"/api/v1{requested_path}"
