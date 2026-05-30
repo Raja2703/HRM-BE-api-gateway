@@ -19,6 +19,7 @@ app.add_middleware(
 
 SERVICES = {
     "/api/v1/auth": os.getenv("AUTH_SERVICE_URL", "http://localhost:7071"),
+    "/api/v1/candidate/auth": os.getenv("AUTH_SERVICE_URL", "http://localhost:7071"),
     "/api/v1/billing": os.getenv("BILLING_SERVICE_URL", "http://localhost:7072"),
     "/api/v1/tenants": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
     "/api/v1/approvals": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
