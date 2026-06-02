@@ -19,15 +19,20 @@ app.add_middleware(
 
 SERVICES = {
     "/api/v1/auth": os.getenv("AUTH_SERVICE_URL", "http://localhost:7071"),
+    "/api/v1/candidate/auth": os.getenv("AUTH_SERVICE_URL", "http://localhost:7071"),
     "/api/v1/billing": os.getenv("BILLING_SERVICE_URL", "http://localhost:7072"),
     "/api/v1/tenants": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
+    "/api/v1/approvals": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
     "/api/v1/employees": os.getenv("EMPLOYEE_SERVICE_URL", "http://localhost:7074"),
     "/api/v1/superadmin": os.getenv("SUPERADMIN_SERVICE_URL", "http://localhost:7075"),
     "/api/v1/notifications": os.getenv("NOTIFICATION_SERVICE_URL", "http://localhost:7076"),
     "/api/v1/orchestrate": os.getenv("ORCHESTRATOR_SERVICE_URL", "http://localhost:8002"),
+    "/internal/api/v1/internal/orchestrator": os.getenv("ORCHESTRATOR_SERVICE_URL", "http://localhost:8002"),
+    "/pipelines/api/v1/orchestrator": os.getenv("ORCHESTRATOR_SERVICE_URL", "http://localhost:8002"),
     "/api/v1/jobs": os.getenv("JOB_SERVICE_URL", "http://localhost:7078"),
     "/api/v1/cms": os.getenv("CMS_SERVICE_URL", "http://localhost:7080"),
     "/api/v1/candidates": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:8003"),
+    "/api/v1/audit": os.getenv("AUDIT_SERVICE_URL", "http://localhost:8004"),
 }
 
 @app.get("/health")
@@ -35,8 +40,10 @@ async def health_check():
     return JSONResponse(status_code=200, content={"status": "ok", "service": "api_gateway-service"})
 
 
+from fastapi import BackgroundTasks
+
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"])
-async def gateway(request: Request, path: str):
+async def gateway(request: Request, path: str, background_tasks: BackgroundTasks):
     requested_path = f"/{path}"
     target_service_url = None
     
@@ -54,6 +61,9 @@ async def gateway(request: Request, path: str):
     if "/api/v1/cms" in requested_path:
         # For CMS (Azure Function), strip /api/v1/cms and prepend /api
         target_path = requested_path.replace("/api/v1/cms", "/api", 1)
+    elif requested_path.startswith("/internal/") or requested_path.startswith("/pipelines/"):
+        # Pass through internal or pipelines paths without prepending /api/v1
+        target_path = requested_path
     elif not requested_path.startswith("/api/v1/"):
         # If the frontend stripped /api/v1, add it back for the microservice
         target_path = f"/api/v1{requested_path}"
@@ -84,20 +94,26 @@ async def gateway(request: Request, path: str):
                 headers=headers,
                 content=body,
             )
-            
+        except httpx.RequestError as e:
+            logger.error(f"Error communicating with {target_url}: {e}")
+            raise HTTPException(status_code=502, detail=f"Bad Gateway: Unable to reach upstream service.")
+        else:
             # Exclude response headers that should not be forwarded
             resp_headers = dict(response.headers)
             resp_headers.pop("content-encoding", None)
             resp_headers.pop("content-length", None)
 
+            # --- AUDIT LOGGING ---
+            from app.audit import publish_audit_event
+            background_tasks.add_task(publish_audit_event, request, body, response.status_code)
+            # ---------------------
+
             return Response(
                 content=response.content,
                 status_code=response.status_code,
-                headers=resp_headers
+                headers=resp_headers,
+                background=background_tasks
             )
-        except httpx.RequestError as e:
-            logger.error(f"Error communicating with {target_url}: {e}")
-            raise HTTPException(status_code=502, detail=f"Bad Gateway: Unable to reach upstream service.")
 
 if __name__ == "__main__":
     import uvicorn
