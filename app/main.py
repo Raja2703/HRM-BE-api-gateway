@@ -23,6 +23,7 @@ SERVICES = {
     "/api/v1/billing": os.getenv("BILLING_SERVICE_URL", "http://localhost:7072"),
     "/api/v1/tenants": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
     "/api/v1/approvals": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
+    "/api/v1/admin/approval-config": os.getenv("TENANT_SERVICE_URL", "http://localhost:7073"),
     "/api/v1/employees": os.getenv("EMPLOYEE_SERVICE_URL", "http://localhost:7074"),
     "/api/v1/superadmin": os.getenv("SUPERADMIN_SERVICE_URL", "http://localhost:7075"),
     "/api/v1/notifications": os.getenv("NOTIFICATION_SERVICE_URL", "http://localhost:7076"),
