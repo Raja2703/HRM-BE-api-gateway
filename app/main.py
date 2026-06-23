@@ -35,6 +35,7 @@ SERVICES = {
     "/api/v1/cms": os.getenv("CMS_SERVICE_URL", "http://localhost:7080"),
     "/api/v1/candidates": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:8003"),
     "/api/v1/audit": os.getenv("AUDIT_SERVICE_URL", "http://localhost:8004"),
+    "/api/v1/interviews": os.getenv("INTERVIEW_SERVICE_URL", "http://localhost:7081"),
 }
 
 @app.get("/health")
