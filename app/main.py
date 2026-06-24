@@ -33,10 +33,14 @@ SERVICES = {
     "/pipelines/api/v1/orchestrator": os.getenv("ORCHESTRATOR_SERVICE_URL", "http://localhost:8002"),
     "/api/v1/jobs": os.getenv("JOB_SERVICE_URL", "http://localhost:7078"),
     "/api/v1/cms": os.getenv("CMS_SERVICE_URL", "http://localhost:7080"),
-    "/api/v1/candidates": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:8003"),
+    "/api/v1/candidates": os.getenv("CANDIDATE_SERVICE_URL", "http://localhost:7082"),
+    "/api/v1/scheduling": os.getenv("SCHEDULING_SERVICE_URL", "http://localhost:7083"),
+    "/api/v1/feedback": os.getenv("FEEDBACK_SERVICE_URL", "http://localhost:7084"),
+    "/api/v1/recordings": os.getenv("MEDIA_SERVICE_URL", "http://localhost:7085"),
     "/api/v1/audit": os.getenv("AUDIT_SERVICE_URL", "http://localhost:8004"),
     "/api/v1/interviews": os.getenv("INTERVIEW_SERVICE_URL", "http://localhost:7081"),
 }
+
 
 @app.get("/health")
 async def health_check():
