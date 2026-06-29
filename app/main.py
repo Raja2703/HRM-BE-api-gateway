@@ -34,6 +34,7 @@ SERVICES = {
     "/api/v1/jobs": os.getenv("JOB_SERVICE_URL", "http://localhost:7078"),
     "/api/v1/cms": os.getenv("CMS_SERVICE_URL", "http://localhost:7080"),
     "/api/v1/candidates": os.getenv("CANDIDATE_SERVICE_URL", "http://localhost:7082"),
+    "/api/v1/candidates/analytics": os.getenv("RESUME_PARSING_SERVICE_URL", "http://localhost:8003"),
     "/api/v1/scheduling": os.getenv("SCHEDULING_SERVICE_URL", "http://localhost:7083"),
     "/api/v1/feedback": os.getenv("FEEDBACK_SERVICE_URL", "http://localhost:7084"),
     "/api/v1/recordings": os.getenv("MEDIA_SERVICE_URL", "http://localhost:7085"),
